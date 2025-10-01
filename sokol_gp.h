@@ -1637,22 +1637,25 @@ static sg_pipeline _sgp_lookup_pipeline(sg_primitive_type primitive_type, sgp_bl
 }
 
 static sg_shader _sgp_make_common_shader(void) {
-    sg_backend backend = sg_query_backend();
+sg_backend backend = sg_query_backend();
     sg_shader_desc desc;
     memset(&desc, 0, sizeof(desc));
-    desc.samplers[0].stage = SG_SHADERSTAGE_FRAGMENT;
-    desc.views[0].used = true;
+    
+    // Set up view (replaces old images[0])
     desc.views[0].texture.stage = SG_SHADERSTAGE_FRAGMENT;
     desc.views[0].texture.multisampled = false;
     desc.views[0].texture.image_type = SG_IMAGETYPE_2D;
     desc.views[0].texture.sample_type = SG_IMAGESAMPLETYPE_FLOAT;
-    desc.samplers[0].used = true;
+    
+    // Set up sampler
     desc.samplers[0].stage = SG_SHADERSTAGE_FRAGMENT;
     desc.samplers[0].sampler_type = SG_SAMPLERTYPE_FILTERING;
-    desc.texture_sampler_pairs[0].used = true;
+    
+    // Set up the pair
     desc.texture_sampler_pairs[0].stage = SG_SHADERSTAGE_FRAGMENT;
     desc.texture_sampler_pairs[0].view_slot = 0;
     desc.texture_sampler_pairs[0].sampler_slot = 0;
+    desc.texture_sampler_pairs[0].glsl_name = "iTexChannel0_iSmpChannel0";
 
     // GLCORE / GLES3 only
     desc.attrs[SGP_VS_ATTR_COORD].glsl_name = "coord";
@@ -1868,7 +1871,7 @@ void sgp_shutdown(void) {
         sg_destroy_buffer(_sgp.vertex_buf);
     }
     if (_sgp.white_view.id != SG_INVALID_ID) {
-        sg_destroy_view(_sgp.white_view);
+    sg_destroy_view(_sgp.white_view);
     }
     if (_sgp.white_img.id != SG_INVALID_ID) {
         sg_destroy_image(_sgp.white_img);
