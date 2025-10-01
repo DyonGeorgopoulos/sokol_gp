@@ -1969,6 +1969,13 @@ void sgp_begin(int width, int height) {
         _sgp.state.textures.images[i] = img;
         _sgp.state.textures.samplers[i] = _sgp.nearest_smp;
     }
+
+    for (int i = 0; i < SGP_TEXTURE_SLOTS; i++) {
+        if (_sgp.state.textures.views[i].id != SG_INVALID_ID) {
+            sg_destroy_view(_sgp.state.textures.views[i]);
+            _sgp.state.textures.views[i].id = SG_INVALID_ID;
+        }
+    }
 }
 
 void sgp_flush(void) {
@@ -2100,13 +2107,6 @@ void sgp_end(void) {
     if (SOKOL_UNLIKELY(_sgp.cur_state <= 0)) {
         _sgp_set_error(SGP_ERROR_STATE_STACK_UNDERFLOW);
         return;
-    }
-
-    for (int i = 0; i < SGP_TEXTURE_SLOTS; i++) {
-        if (_sgp.state.textures.views[i].id != SG_INVALID_ID) {
-            sg_destroy_view(_sgp.state.textures.views[i]);
-            _sgp.state.textures.views[i].id = SG_INVALID_ID;
-        }
     }
 
     // restore old state
