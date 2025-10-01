@@ -2102,6 +2102,13 @@ void sgp_end(void) {
         return;
     }
 
+    for (int i = 0; i < SGP_TEXTURE_SLOTS; i++) {
+        if (_sgp.state.textures.views[i].id != SG_INVALID_ID) {
+            sg_destroy_view(_sgp.state.textures.views[i]);
+            _sgp.state.textures.views[i].id = SG_INVALID_ID;
+        }
+    }
+
     // restore old state
     _sgp.state = _sgp.state_stack[--_sgp.cur_state];
 }
@@ -2297,6 +2304,10 @@ void sgp_set_image(int channel, sg_image image) {
     SOKOL_ASSERT(channel >= 0 && channel < SGP_TEXTURE_SLOTS);
     if (_sgp.state.textures.images[channel].id == image.id) {
         return;
+    }
+
+    if (_sgp.state.textures.views[channel].id != SG_INVALID_ID) {
+        sg_destroy_view(_sgp.state.textures.views[channel]);
     }
 
     _sgp.state.textures.images[channel] = image;
