@@ -728,6 +728,7 @@ typedef struct _sgp_context {
     sg_shader shader;
     sg_buffer vertex_buf;
     sg_image white_img;
+    sg_view white_view;
     sg_sampler nearest_smp;
     sg_pipeline pipelines[_SG_PRIMITIVETYPE_NUM * _SGP_BLENDMODE_NUM];
 
@@ -1789,6 +1790,15 @@ void sgp_setup(const sgp_desc* desc) {
         return;
     }
 
+    _sgp.white_view = sg_make_view(&(sg_view_desc){
+        .texture = {
+            .image = _sgp.white_img,
+            .mip_levels = { .base = 0, .count = 1 },
+            .slices = { .base = 0, .count = 1 }
+        },
+        .label = "sgp-white-view"
+    });
+
     // create nearest sampler
     sg_sampler_desc nearest_smp_desc;
     memset(&nearest_smp_desc, 0, sizeof(sg_sampler_desc));
@@ -1853,6 +1863,9 @@ void sgp_shutdown(void) {
     }
     if (_sgp.vertex_buf.id != SG_INVALID_ID) {
         sg_destroy_buffer(_sgp.vertex_buf);
+    }
+    if (_sgp.white_view.id != SG_INVALID_ID) {
+        sg_destroy_view(_sgp.white_view);
     }
     if (_sgp.white_img.id != SG_INVALID_ID) {
         sg_destroy_image(_sgp.white_img);
@@ -1963,6 +1976,7 @@ void sgp_begin(int width, int height) {
 
     _sgp.state.textures.count = 1;
     _sgp.state.textures.images[0] = _sgp.white_img;
+    _sgp.state.textures.views[0] = _sgp.white_view;
     _sgp.state.textures.samplers[0] = _sgp.nearest_smp;
     sg_image img = {SG_INVALID_ID};
     for (int i=1;i<SGP_TEXTURE_SLOTS;++i) {
