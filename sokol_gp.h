@@ -1641,12 +1641,15 @@ static sg_shader _sgp_make_common_shader(void) {
     sg_shader_desc desc;
     memset(&desc, 0, sizeof(desc));
     desc.samplers[0].stage = SG_SHADERSTAGE_FRAGMENT;
+    desc.views[0].used = true;
     desc.views[0].texture.stage = SG_SHADERSTAGE_FRAGMENT;
     desc.views[0].texture.multisampled = false;
     desc.views[0].texture.image_type = SG_IMAGETYPE_2D;
     desc.views[0].texture.sample_type = SG_IMAGESAMPLETYPE_FLOAT;
+    desc.samplers[0].used = true;
     desc.samplers[0].stage = SG_SHADERSTAGE_FRAGMENT;
     desc.samplers[0].sampler_type = SG_SAMPLERTYPE_FILTERING;
+    desc.texture_sampler_pairs[0].used = true;
     desc.texture_sampler_pairs[0].stage = SG_SHADERSTAGE_FRAGMENT;
     desc.texture_sampler_pairs[0].view_slot = 0;
     desc.texture_sampler_pairs[0].sampler_slot = 0;
