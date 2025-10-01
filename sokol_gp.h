@@ -532,6 +532,7 @@ typedef struct sgp_uniform {
 typedef struct sgp_textures_uniform {
     uint32_t count;
     sg_image images[SGP_TEXTURE_SLOTS];
+    sg_view views[SGP_TEXTURE_SLOTS];
     sg_sampler samplers[SGP_TEXTURE_SLOTS];
 } sgp_textures_uniform;
 
@@ -2057,7 +2058,7 @@ void sgp_flush(void) {
                     if (cur_imgs_id[j] != img_id) {
                         // when an image binding change we need to re-apply bindings
                         cur_imgs_id[j] = img_id;
-                        bind.views[j].id = img_id;
+                        bind.views[j] = args->textures.views[j];
                         bind.samplers[j].id = smp_id;
                         apply_bindings = true;
                     }
@@ -2299,6 +2300,18 @@ void sgp_set_image(int channel, sg_image image) {
     }
 
     _sgp.state.textures.images[channel] = image;
+
+    if (image.id != SG_INVALID_ID) {
+        _sgp.state.textures.views[channel] = sg_make_view(&(sg_view_desc){
+            .texture = {
+                .image = image,
+                .mip_levels = { .base = 0, .count = 1 },
+                .slices = { .base = 0, .count = 1 }
+            }
+        });
+    } else {
+        _sgp.state.textures.views[channel].id = SG_INVALID_ID;
+    }
 
     // recalculate textures count
     int textures_count = (int)_sgp.state.textures.count;
